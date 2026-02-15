@@ -1,1 +1,54 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly as py
+import plotly.graph_objs as go
+
+from sklearn.preprocessing import LabelEncoder
+import scipy.cluster.hierarchy as sch
+from sklearn.cluster import AgglomerativeClustering
+
+df = pd.read_csv(r"C:\Users\HP\Downloads\Mall_Customers.csv")
+
+df.head()
+
+df.info()
+
+df.isna().sum()
+
+df.describe()
+
+df.duplicate().sum()
+
+le = LabelEncoder()
+df['Genre'] = le.fit_transform(df['Genre'])
+df.head()
+
+plt.figure(1, figsize=(16, 8))
+dendrogram = sch.dendrogram(sch.linkage(df, method="ward"))
+plt.title('Dendrogram')
+plt.xlabel('Customers')
+plt.ylabel('Euclidean distances')
+plt.show()
+
+hc = AgglomerativeClustering(n_clusters=5, metric='euclidean', linkage='average')
+y_hc = hc.fit_predict(df)
+
+y_hc
+
+df['cluster'] = pd.DataFrame(y_hc)
+
+x = df.iloc[:, [3, 4]].values
+
+plt.scatter(x[y_hc == 0, 0], x[y_hc == 0, 1], s=100, c='red', label='Cluster 1')
+plt.scatter(x[y_hc == 1, 0], x[y_hc == 1, 1], s=100, c='blue', label='Cluster 2')
+plt.scatter(x[y_hc == 2, 0], x[y_hc == 2, 1], s=100, c='green', label='Cluster 3')
+plt.scatter(x[y_hc == 3, 0], x[y_hc == 3, 1], s=100, c='purple', label='Cluster 4')
+plt.scatter(x[y_hc == 4, 0], x[y_hc == 4, 1], s=100, c='orange', label='Cluster 5')
+
+plt.title('Clusters of Customers (Hierarchical Clustering Model)')
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.show()
 
