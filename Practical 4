@@ -1,0 +1,71 @@
+import pandas as pd
+import numpy as np
+import regex
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import classification_report
+
+nltk.download("stopwords")
+nltk.download("punkt")
+
+data = pd.read_csv("/content/IMDB Dataset - IMDB Dataset.csv")
+data.head()
+
+data.isnull().sum()
+
+data.shape
+
+def cleanText(text):
+    text = regex.sub(r"[<[^>]+>]", " ", text)
+    text = regex.sub(r"[^a-zA-Z0-9\s]", " ", text)
+    text = text.lower()
+    return text
+
+data["review"] = data["review"].apply(cleanText)
+data.head()
+
+import nltk
+nltk.download('punkt_tab')
+
+stopword_list = stopwords.words('english')
+
+def remove_stopwords(text):
+    tokens = [token.strip() for token in word_tokenize(text)]
+    filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
+    filtered_text = ' '.join(filtered_tokens)
+    return filtered_text
+
+data['review'] = data['review'].apply(remove_stopwords)
+data.head()
+
+def simple_stemmer(text):
+    ps = PorterStemmer()
+    text = ' '.join([ps.stem(word) for word in text.split()])
+    return text
+
+data['review'] = data['review'].apply(simple_stemmer)
+data.head(10)
+
+X = data['review']
+y = data['sentiment']
+
+vect = CountVectorizer(ngram_range=(1, 3))
+
+X = vect.fit_transform(X)
+X
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+clf = MultinomialNB()
+
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+print(y_pred)
+
+print(classification_report(y_test, y_pred))
