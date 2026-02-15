@@ -1,1 +1,52 @@
+Evaluating a classification model using metrics such as accuracy, precision, recall, and F1 score.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("C:/Users/HP/Downloads/heart.csv")
+
+df.head()
+
+df.shape
+
+df.info()
+
+df.isna().sum()
+
+df.describe()
+
+df.duplicated().sum()
+
+le = LabelEncoder()
+
+for column in df.select_dtypes(include=['object']):
+    df[column] = le.fit_transform(df[column])
+
+df.head()
+
+x = df.drop('HeartDisease', axis=1)
+y = df['HeartDisease']
+
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, train_size=0.8, stratify=y, random_state=42
+)
+
+lr = LogisticRegression()
+lr.fit(x_train, y_train)
+
+y_pred = lr.predict(x_test)
+y_pred
+
+confusion_matrix(y_test, y_pred)
+
+accuracy_score(y_test, y_pred)
 
